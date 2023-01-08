@@ -2,6 +2,7 @@ import imaplib
 import email
 import os
 import yaml
+import re
 
 class EmailContent:  
     def __init__(self, title, date, content):
@@ -10,7 +11,6 @@ class EmailContent:
         self.content = content
     
     
-
 # Connect to the server
 mail = imaplib.IMAP4_SSL('outlook.office365.com')
 
@@ -23,9 +23,10 @@ mail.login(config['login']['username'], config['login']['password'])
 
 # Select the mailbox you want to retrieve emails from
 #mail.select('INBOX')
-typ, folders = mail.list()
 
 mail.select('Filtering')
+
+typ, folders = mail.list()
 
 # Search for emails
 #status, emails = mail.search(None, 'ALL')
@@ -42,13 +43,22 @@ for email_id in email_ids:
     if status == 'OK':
         # Parse the email
         msg = email.message_from_bytes(msg[0][1])    
-        body = msg._payload[0]._payload.rstrip("\r\n\r\n\r\nGet Outlook for iOS<https://aka.ms/o0ukef>")
+        #msg = email.message_from_string(msg[0][1]) 
+        try:
+            body = msg._payload[0]._payload.rstrip("\r\n\r\n\r\nGet Outlook for iOS<https://aka.ms/o0ukef>")
+            
+            #body = body.replace()
+            body = re.sub(r"\s+", " ", body)
+        except:
+            pass
         emails.append(EmailContent(msg["Subject"],msg["Date"],body))
-        # Print the subject and sender of the email
-        # print(f'Subject: {msg["Subject"]} , Date: {msg["Date"]} ')
-        # #print(f'From: {msg["From"]}, ')
-        # body = 
-        # print(f'Msg: {body}')
+        #Print the subject and sender of the email
+        print(f'Subject: {msg["Subject"]} , Date: {msg["Date"]} ')
+        print(f'From: {msg["From"]}, ')
+        
+        #print(f'Body: {msg.get_payload(decode=True).decode()}')
+        #print(f'Body: {msg.get_payload().decode}')
+        print(f'Body: {body}')
 
 # Close the mailbox and logout
 mail.close()
@@ -56,10 +66,14 @@ mail.logout()
 
 #write .md file
 kms_path = "C:/"
-filename = "filters.md"
+filename = "filtered.md"
 count = 1
 
 with open(os.path.join(kms_path,filename),"a") as file:
     for email in emails:
-        file.write(f'{count}. [ ] {email.content} , {email.date}')
+        #todo group by dates += os.linesep
+        row = f'{count}. [ ] {email.content}, {email.date}'
+       # row.remo
+        row += os.linesep
+        file.write(row)
         count+=1
