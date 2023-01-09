@@ -1,6 +1,7 @@
 import imaplib
 import email
 import os
+import string
 import yaml
 import re
 
@@ -45,11 +46,15 @@ for email_id in email_ids:
         msg = email.message_from_bytes(msg[0][1])    
         #msg = email.message_from_string(msg[0][1]) 
         try:
-            body = msg._payload[0]._payload.rstrip("\r\n\r\n\r\nGet Outlook for iOS<https://aka.ms/o0ukef>")
+            body = msg._payload[0]._payload.replace(os.linesep,"").rstrip("Get Outlook for iOS<https://aka.ms/o0ukef>")
             
             #body = body.replace()
-            body = re.sub(r"\s+", " ", body)
+            #body = re.sub(r"\s+", " ", body)
+            #body = string.strip(body)            
+            #body = body.replace(os.linesep,"")
+
         except:
+            body = f'Not able to find payload in {email_id} with details,subject: {msg["Subject"]} , Date: {msg["Date"]}'
             pass
         emails.append(EmailContent(msg["Subject"],msg["Date"],body))
         #Print the subject and sender of the email
