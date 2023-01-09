@@ -10,14 +10,14 @@ class Imap4Service:
         self.email_list = []
         self.mail_server = None
 
-    def retrieve_email_reference(self, groupBy=1):
+    def retrieve_email_reference(self, groupBy=1):        
         if (groupBy == GroupBy.ByDate):
             return self.retrieve_email_reference_by_date();
         elif (groupBy == GroupBy.ByTag):
             return self.retrieve_email_reference_by_tag();
         elif (groupBy == GroupBy.ByTagAndDate):
             return self.retrieve_email_reference_by_tag_and_date();
-        pass
+        
 
     def connect_to_server(self,retrieve_from_folder="INBOX",search_by='ALL'):
         self.mail_server = imaplib.IMAP4_SSL('outlook.office365.com')        
@@ -41,6 +41,8 @@ class Imap4Service:
                 count+=1                
     
     def retrieve_email_reference(self):
+        self.connect_to_server()
+                
         # Iterate through the list of email IDs and retrieve the email
         for email_id in self.email_ids:
             status, msg = self.mail_server.fetch(email_id,'(RFC822)')
