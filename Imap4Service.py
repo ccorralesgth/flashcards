@@ -1,10 +1,10 @@
 from enum import Enum
 import imaplib
 import os
-from ReferenceEmail import *
+from services.ReferenceEmail import *
 import yaml
 
-class Imap4Service:
+class Imap4Service():
     def __init__(self):
         self.emails = []                
         self.email_list = []
@@ -25,7 +25,7 @@ class Imap4Service:
             config = yaml.safe_load(f)
 
         self.mail_server.login(config['login']['username'], config['login']['password'])       
-        self.mail_server.select(retrieve_from_folder = "Filtering")
+        self.mail_server.select("Filtering")
         typ, folders = self.mail_server.list()
         status, emails = self.mail_server.search(None, search_by='SUBJECT "Filter"')        
         self.email_ids = emails[0].split()
