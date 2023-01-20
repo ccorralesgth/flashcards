@@ -2,8 +2,13 @@ import email
 from enum import Enum
 import imaplib
 import os
-from services.ReferenceEmail import *
+#from services import *
+#from services import ReferenceEmail
 import yaml
+
+from ReferenceEmail import ReferenceEmail
+
+
 
 class Imap4Service():
     def __init__(self):
@@ -11,17 +16,17 @@ class Imap4Service():
         self.email_list = []
         self.mail_server = None
 
-    def retrieve_email_reference(self, groupBy= 1):    
+    def retrieve_email_reference(self, groupBy = 1):    
         self.connect_to_server()
 
-        if(groupBy == GroupBy.ByNone):
-            return self.retrieve_email_reference_groupby_none()
-        if (groupBy == GroupBy.ByDate):
-            return self.retrieve_email_reference_groupby_date()
-        elif (groupBy == GroupBy.ByTag):
-            return self.retrieve_email_reference_groupby_tag()
-        elif (groupBy == GroupBy.ByTagAndDate):
-            return self.retrieve_email_reference_groupby_tag_and_date()
+        if(groupBy == GroupBy.ByNone.value):
+            self.retrieve_email_reference_groupby_none()
+        if (groupBy == GroupBy.ByDate.value):
+            self.retrieve_email_reference_groupby_date()
+        elif (groupBy == GroupBy.ByTag.value):
+            self.retrieve_email_reference_groupby_tag()
+        elif (groupBy == GroupBy.ByTagAndDate.value):
+            self.retrieve_email_reference_groupby_tag_and_date()
         
         self.write_md_file()
         self.server_disconnect() 
@@ -70,7 +75,8 @@ class Imap4Service():
             if status == 'OK':                
                 msg = email.message_from_bytes(msg[0][1])                    
                 try:
-                    body = msg._payload[0]._payload.replace(os.linesep,"").rstrip("Get Outlook for iOS<https://aka.ms/o0ukef>")
+                    # body = msg._payload[0]._payload.replace(os.linesep,"").rstrip(os.linesep+"Get Outlook for iOS<https://aka.ms/o0ukef>"+os.linesep+)
+                    body = msg._payload[0]._payload.rstrip(os.linesep+"Get Outlook for iOS<https://aka.ms/o0ukef>"+os.linesep)
                 except:
                     body = f'Not able to get email payload in {email_id} with details,subject: {msg["Subject"]} , Date: {msg["Date"]}'
                     pass
