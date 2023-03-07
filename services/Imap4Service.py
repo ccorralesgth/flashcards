@@ -7,6 +7,7 @@ import os
 import yaml
 from datetime import datetime
 from dateutil import parser
+import re
 
 from ReferenceEmail import ReferenceEmail
 
@@ -65,7 +66,7 @@ class Imap4Service():
    
 
     
-    # def retrieve_email_reference(self):
+        # def retrieve_email_reference(self):
         
                 
     #     # Iterate through the list of email IDs and retrieve the email
@@ -96,8 +97,9 @@ class Imap4Service():
                     if(isinstance(email.message_from_bytes(msg[0][1])._payload[0],email.message.Message)):
                         body_url = email.message_from_bytes(msg[0][1])._payload[0]._payload.replace(os.linesep,'').rstrip("Get Outlook for iOS<https://aka.ms/o0ukef>")
                         dateformated  = parser.parse(email.message_from_bytes(msg[0][1])["Date"]).strftime('%c')
-                    else:
-                        body_url = ''
+                    else:                        
+                       if(len(re.findall(r'<a.*?>(.*?)</a>',email.message_from_bytes(msg[0][1])._payload)) > 0):
+                        body_url = re.findall(r'<a.*?>(.*?)</a>',email.message_from_bytes(msg[0][1])._payload)[0]
                     # body = msg._payload[0]._payload.replace(os.linesep,"").rstrip(os.linesep+"Get Outlook for iOS<https://aka.ms/o0ukef>"+os.linesep+)
                     
                     self.emails.append(ReferenceEmail(email.message_from_bytes(msg[0][1])["Subject"],dateformated,body_url))
